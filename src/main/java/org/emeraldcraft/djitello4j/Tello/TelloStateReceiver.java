@@ -1,11 +1,9 @@
 package org.emeraldcraft.djitello4j.Tello;
 
-import org.emeraldcraft.tellolib.Log;
+import org.emeraldcraft.djitello4j.Log;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
+import java.net.*;
 
 public class TelloStateReceiver extends Thread {
     private DatagramSocket socket;
@@ -18,15 +16,20 @@ public class TelloStateReceiver extends Thread {
     private int tof = 0;
 
     public TelloStateReceiver() throws SocketException {
-        socket = new DatagramSocket(8890);
-        socket.setSoTimeout(4000);
-        //Try checking to see if we are online and running
-        if (isOnline()) {
-            running = true;
-            //Recieve 1st state packet
-            this.receiveAndParsePackets();
-            Log.debug("Tello state receiver started");
+        try {
+            socket = new DatagramSocket(8890, InetAddress.getByName("0.0.0.0"));
+            socket.setSoTimeout(2000);
+            //Try checking to see if we are online and running
+            if (isOnline()) {
+                running = true;
+                //Recieve 1st state packet
+                this.receiveAndParsePackets();
+                Log.debug("Tello state receiver started");
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
+
     }
 
     @Override
