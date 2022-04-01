@@ -5,7 +5,12 @@ import org.emeraldcraft.djitello4j.Log;
 import java.io.IOException;
 import java.net.*;
 
-public class TelloStateReceiver extends Thread {
+/**
+ * This class is used to receive the state of the Tello drone via the UDP socket.
+ * This information is passed to provide information about the battery, tof, temperature, and height.
+ * This runs in the background on a separate thread, and the information is sent from the Tello drone automatically.
+ */
+public final class TelloStateReceiver extends Thread {
     private DatagramSocket socket;
     private byte[] buf = new byte[256];
     private boolean running = false;
