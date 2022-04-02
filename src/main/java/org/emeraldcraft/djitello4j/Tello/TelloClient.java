@@ -1,9 +1,11 @@
 package org.emeraldcraft.djitello4j.Tello;
 
-import org.emeraldcraft.djitello4j.Log;
-
 import java.io.IOException;
 import java.net.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Represents the Tello Drone. This class is responsible for sending and receiving data from the Tello.
@@ -13,6 +15,7 @@ import java.net.*;
  */
 public class TelloClient {
     private long timeOfLastCommand = 0;
+    private boolean canRestart = true;
     private boolean hasConnected = false;
     private boolean isEnabled = true;
     private DatagramSocket socket;
@@ -29,7 +32,7 @@ public class TelloClient {
         }
         catch (SocketException | UnknownHostException e){
             if(e instanceof SocketException){
-                Log.error("There was an error while creating the socket! (Is the Tello connected and is bypassing the firewall?)");
+                Log.error("There was an error while creating the socket! (Is the program already running?)");
                 e.printStackTrace();
             }
             else {
@@ -53,7 +56,7 @@ public class TelloClient {
     public boolean connect() {
         //First check to see if we are receiving state packets
         if (hasConnected) return true;
-
+        if(!canRestart) return false;
         receiver.start();
         if (receiver.isOnline()) {
             sendKeepAlivePacket();
@@ -98,6 +101,9 @@ public class TelloClient {
         keepAliveThread.start();
     }
 
+    /**
+     * Sends a keep alive packet to keep the drone connected even if no commands are sent.
+     */
     public void sendKeepAlivePacket() {
         if (System.currentTimeMillis() - this.timeOfLastCommand > 13_000) {
             String response = sendPacket("alive", null, 3_000);
@@ -110,6 +116,9 @@ public class TelloClient {
     }
 
 
+    /**
+     * Initiates auto-takeoff.
+     */
     public void takeoff() {
         sendKeepAlivePacket();
         String response = sendPacket("takeoff", "ok", 20_000);
@@ -120,6 +129,9 @@ public class TelloClient {
         System.out.println("Failed to takeoff");
     }
 
+    /**
+     * Initiates auto-landing.
+     */
     public void land() {
         sendKeepAlivePacket();
         String response = sendPacket("land", "ok", 20_000);
@@ -130,6 +142,10 @@ public class TelloClient {
         System.out.println("Failed to land");
     }
 
+    /**
+     * Moves the drone forward X amount in CM.
+     * @param amount The amount of cm to move the drone forward from 20cm to 500cm.
+     */
     public void moveForward(int amount) {
         sendKeepAlivePacket();
         if (amount > 500) throw new IllegalArgumentException("Amount must be less than 500");
@@ -138,6 +154,10 @@ public class TelloClient {
         sendPacket("forward " + amount, "ok", calcSpeedTime(amount));
     }
 
+    /**
+     * Moves the drone backward X amount in CM.
+     * @param amount Move the drone backward X amount in CM from 20cm to 500cm.
+     */
     public void moveBackward(int amount) {
         sendKeepAlivePacket();
 
@@ -147,6 +167,10 @@ public class TelloClient {
         sendPacket("back " + amount, "ok", calcSpeedTime(amount));
     }
 
+    /**
+     * Moves the drone right X amount in CM.
+     * @param amount The amount of cm to move the drone right from 20cm to 500cm.
+     */
     public void moveRight(int amount) {
         sendKeepAlivePacket();
 
@@ -156,6 +180,10 @@ public class TelloClient {
         sendPacket("right " + amount, "ok", calcSpeedTime(amount));
     }
 
+    /**
+     * Moves the drone left X amount in CM.
+     * @param amount The amount of cm to move the drone left from 20cm to 500cm.
+     */
     public void moveLeft(int amount) {
         sendKeepAlivePacket();
 
@@ -166,22 +194,131 @@ public class TelloClient {
     }
 
     /**
+     * Moves the drone up X amount in CM.
+     * @param amount The amount of cm to move the drone up from 20cm to 500cm.
+     */
+    public void moveUp(int amount) {
+        sendKeepAlivePacket();
+
+        if (amount > 500) throw new IllegalArgumentException("Amount must be less than 500");
+        if (amount < 20) throw new IllegalArgumentException("Amount must be greater than 20");
+
+        sendPacket("up " + amount, "ok", calcSpeedTime(amount));
+    }
+
+    /**
+     * Moves the drone down X amount in CM.
+     * @param amount The amount of cm to move the drone down from 20cm to 500cm.
+     */
+    public void moveDown(int amount) {
+        sendKeepAlivePacket();
+
+        if (amount > 500) throw new IllegalArgumentException("Amount must be less than 500");
+        if (amount < 20) throw new IllegalArgumentException("Amount must be greater than 20");
+
+        sendPacket("down " + amount, "ok", calcSpeedTime(amount));
+    }
+
+    /**
+     * Rotates the drone clockwise X amount in degrees.
+     * @param amount The amount of degrees to rotate the drone clockwise from 0 to 3600.
+     */
+    public void rotateCW(int amount) {
+        sendKeepAlivePacket();
+
+        if (amount > 3600) throw new IllegalArgumentException("Amount must be less than 3600");
+        if (amount < 1) throw new IllegalArgumentException("Amount must be greater than 1");
+
+        sendPacket("cw " + amount, "ok", calcSpeedTime(amount));
+    }
+
+    /**
+     * Rotates the drone counter-clockwise X amount in degrees.
+     * @param amount The amount of degrees to rotate the drone counter-clockwise from 0 to 3600.
+     */
+    public void rotateCWW(int amount) {
+        sendKeepAlivePacket();
+
+        if (amount > 3600) throw new IllegalArgumentException("Amount must be less than 3600");
+        if (amount < 1) throw new IllegalArgumentException("Amount must be greater than 1");
+
+        sendPacket("ccw " + amount, "ok", calcSpeedTime(amount));
+    }
+
+    /**
+     * Moves the drone emulating a controller.
+     * @param lr The left-right value of the drone.
+     * @param fb The forward-backward value of the drone.
+     * @param ud The up-down value of the drone.
+     * @param yaw The yaw value of the drone.
+     */
+    public void sendRCControl(int lr, int fb, int ud, int yaw) {
+        sendKeepAlivePacket();
+        if (lr < -100 || lr > 100) throw new IllegalArgumentException("lr must be between -100 and 100");
+        if (fb < -100 || fb > 100) throw new IllegalArgumentException("fb must be between -100 and 100");
+        if (ud < -100 || ud > 100) throw new IllegalArgumentException("ud must be between -100 and 100");
+        if (yaw < -100 || yaw > 100) throw new IllegalArgumentException("yaw must be between -100 and 100");
+
+        sendPacket("rc " + lr + " " + fb + " " + ud + " " + yaw, "ok", -1);
+    }
+
+    /**
      * Please use the {@link FlipDirection} class in order to know which direction to flip
      * Or you could just type it in manually
      *
      * @param direction The direction to flip in
-     * @throws IOException If there is an error sending a packet
      */
     public void flip(String direction)  {
         sendKeepAlivePacket();
         sendPacket("flip " + direction, "ok", 20_000);
     }
 
+    /**
+     * Emergency stops the drone. The drone will also disconnect and cannot be reconnected.
+     * In order to reconnect you will need to restart the drone.
+     */
+    public void emergency(){
+        sendKeepAlivePacket();
+        sendPacket("emergency", null, -1);
+        this.disconnect();
+        this.canRestart = false;
+    }
+
+    /**
+     * Set the speed of the drone from 10 to 100.
+     * @param speed The speed to set the drone to.
+     */
+    public void setSpeed(int speed)  {
+        sendKeepAlivePacket();
+
+        if (speed > 100) throw new IllegalArgumentException("Speed must be less than 100");
+        if (speed < 10) throw new IllegalArgumentException("Speed must be greater than 10");
+
+        String response = sendPacket("speed " + speed, "ok", 5_000);
+        if (response != null) {
+            System.out.println("Tello set speed to " + speed);
+            return;
+        }
+        System.out.println("Failed to set speed");
+    }
+
+    /**
+     * Retrieves the current battery percentage from @{link {@link TelloStateReceiver#getCurrentBattery()}}
+     * @return The batter in %.
+     */
     public int getBattery() {
         return this.receiver.getCurrentBattery();
     }
 
     /**
+     * @return The current TOF
+     */
+    public int getTOF() {
+        return this.receiver.getTof();
+    }
+
+    /**
+     * Internal method to send a packet to the drone.
      * @return The response from the Tello.
      */
     private String sendPacket(String command, String expectedResponse, int timeout){
@@ -223,6 +360,9 @@ public class TelloClient {
         return null;
     }
 
+    /**
+     * Disconnects the socket and stops the receiver.
+     */
     public void disconnect() {
         if (keepAliveThread != null) {
             keepAliveThread.interrupt();
@@ -231,21 +371,33 @@ public class TelloClient {
         socket.disconnect();
         System.out.println("Tello disconnected. Goodbye!");
     }
-
-    public void setSpeed(int speed)  {
-        sendKeepAlivePacket();
-
-        if (speed > 100) throw new IllegalArgumentException("Speed must be less than 100");
-        if (speed < 10) throw new IllegalArgumentException("Speed must be greater than 10");
-
-        String response = sendPacket("speed " + speed, "ok", 5_000);
-        if (response != null) {
-            System.out.println("Tello set speed to " + speed);
-            return;
-        }
-        System.out.println("Failed to set speed");
+    private int calcSpeedTime(int amount) {
+        return ((amount / 15) + 3) * 1000;
     }
-    private int calcSpeedTime(int speed) {
-        return ((speed / 15) + 3) * 1000;
+    public static class Log {
+        private static final boolean IS_DEBUGGING = true;
+
+        public static void debug(String msg){
+            if(!IS_DEBUGGING) return;
+
+            Date date = new Date();
+            DateFormat formatter;
+            formatter = new SimpleDateFormat("h:mm:ss a");
+
+            formatter.setTimeZone(TimeZone.getDefault());
+            String currentTime;
+            currentTime = formatter.format(date);
+            System.out.println("[DEBUG " + currentTime + "]: " + msg);
+        }
+        public static void error(String msg){
+            Date date = new Date();
+            DateFormat formatter;
+            formatter = new SimpleDateFormat("h:mm:ss a");
+
+            formatter.setTimeZone(TimeZone.getDefault());
+            String currentTime;
+            currentTime = formatter.format(date);
+            System.out.println("<!><!> [ERROR " + currentTime + "]: " + msg +  " <!><!>");
+        }
     }
 }
