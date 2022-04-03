@@ -6,6 +6,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents the Tello Drone. This class is responsible for sending and receiving data from the Tello.
@@ -21,7 +24,7 @@ public class TelloClient {
     private DatagramSocket socket;
     private InetAddress address;
     private final int port = 8889;
-    private Thread keepAliveThread;
+    private ScheduledExecutorService keepAliveExecutor;
     private TelloStateReceiver receiver;
 
     public TelloClient(){
@@ -59,7 +62,6 @@ public class TelloClient {
         if(!canRestart) return false;
         receiver.start();
         if (receiver.isOnline()) {
-            sendKeepAlivePacket();
             startKeepAliveThread();
             receiver.receiveAndParsePackets();
             hasConnected = true;
@@ -85,20 +87,8 @@ public class TelloClient {
     }
 
     private void startKeepAliveThread() {
-        keepAliveThread = new Thread(() -> {
-            if (isEnabled) {
-                try {
-                    //Check to see if 15 seconds have passed since the last command was sent
-                    if (System.currentTimeMillis() - this.timeOfLastCommand > 13_000) {
-                        sendKeepAlivePacket();
-                    }
-                    Thread.sleep(3_000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        keepAliveThread.start();
+        keepAliveExecutor = Executors.newSingleThreadScheduledExecutor();
+        keepAliveExecutor.scheduleAtFixedRate(this::sendKeepAlivePacket, 0, 10, TimeUnit.SECONDS);
     }
 
     /**
@@ -364,8 +354,8 @@ public class TelloClient {
      * Disconnects the socket and stops the receiver.
      */
     public void disconnect() {
-        if (keepAliveThread != null) {
-            keepAliveThread.interrupt();
+        if (keepAliveExecutor != null) {
+            keepAliveExecutor.shutdownNow();
         }
         receiver.stopRunning();
         socket.disconnect();
