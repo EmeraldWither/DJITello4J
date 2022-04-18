@@ -1,7 +1,6 @@
 package org.emeraldcraft.djitello4j;
 
 import org.emeraldcraft.djitello4j.Tello.TelloClient;
-import org.emeraldcraft.djitello4j.Tello.TelloClient.FlipDirection;
 
 import java.util.Scanner;
 
@@ -17,17 +16,14 @@ public class Main {
         }
         //ask user if they want to fly
         System.out.println("Do you want to fly? (y/n)");
-        String answer = scanner.nextLine();
-        if (answer.equals("y")) {
-            drone.setSpeed(60);
+        String answer = scanner.nextLine();        if (answer.equals("y")) {
+            drone.setSpeed(40);
             drone.takeoff();
-            drone.moveForward(100);
-            drone.flip(FlipDirection.FORWARD);
-            drone.flip(FlipDirection.BACKWARD);
-
+            drone.moveForward(50);
+            drone.moveBackward(50);
             drone.land();
         }
-        if (answer.equals("n")) {
+        else {
             System.out.println("Goodbye!");
         }
         drone.disconnect();
