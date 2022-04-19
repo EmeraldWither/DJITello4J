@@ -10,19 +10,28 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'java'
-    id 'application'
 }
+apply plugin: 'maven-publish'
+def ver = '1.1.1'
+println 'You are using version: ' + ver
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
+//For publishing to your local maven repo
+//Completely optional
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'org.emeraldcraft'
+            artifactId = 'djitello4j'
+            version = ver
 
+            from components.java
+        }
+    }
+}
 dependencies {
     implementation 'org.openpnp:opencv:4.5.1-2'
-}
-
-application {
-    // Define the main class for the application.
-    mainClass = 'org.emeraldcraft.djitello4j.Main'
 }
