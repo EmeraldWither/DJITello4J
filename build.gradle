@@ -12,26 +12,28 @@ plugins {
     id 'java'
 }
 apply plugin: 'maven-publish'
-def ver = '1.1.1'
+def ver = '1.1.2'
 println 'You are using version: ' + ver
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
+shadowJar {
+    archiveFileName = 'DJITello4J.jar'
+}
 //For publishing to your local maven repo
 //Completely optional
 publishing {
     publications {
-        maven(MavenPublication) {
+        djitello4j(MavenPublication) {
             groupId = 'org.emeraldcraft'
             artifactId = 'djitello4j'
             version = ver
-
             from components.java
         }
     }
 }
 dependencies {
-    implementation 'org.openpnp:opencv:4.5.1-2'
+    implementation group: 'org.openpnp', name: 'opencv', version: '4.5.1-2'
 }
