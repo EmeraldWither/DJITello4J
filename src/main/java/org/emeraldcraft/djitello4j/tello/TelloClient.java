@@ -432,7 +432,7 @@ public class TelloClient {
         }
         receiver.stopRunning();
         socket.disconnect();
-        this.stream.stopFetchingFrames();
+        if(isStreamOn) this.stream.stopFetchingFrames();
         HighGui.destroyAllWindows();
         System.out.println("Tello disconnected. Goodbye!");
     }
