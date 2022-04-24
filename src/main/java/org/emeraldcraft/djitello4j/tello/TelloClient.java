@@ -161,10 +161,14 @@ public class TelloClient {
      *
      * You can use {@link HighGui#imshow(String, Mat)} to display the image.
      *
-     * @return The frame from the camera stream.
+     * @return The frame from the camera stream. Returns null if the stream is not enabled.
      */
     public Mat getFrame() {
-        return stream.getFrame();
+        if(this.stream != null) {
+            while (this.stream.getFrame() == null);
+            return stream.getFrame();
+        }
+        return null;
     }
 
 
@@ -583,7 +587,7 @@ public class TelloClient {
     }
 
     static class TelloCameraStream extends Thread {
-        private boolean isRunning = true;
+        private boolean isRunning = false;
 
         private Mat frame = new Mat();
         private final TelloClient client;
@@ -608,6 +612,7 @@ public class TelloClient {
                 return;
             }
             info("Tello camera stream started");
+            isRunning = true;
         }
 
         public void run() {
@@ -631,6 +636,7 @@ public class TelloClient {
          * @return Returns the decoded frame as a string
          */
         public Mat getFrame() {
+            if(frame.empty()) return null;
             return frame;
         }
 
