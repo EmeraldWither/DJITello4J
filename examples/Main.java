@@ -1,5 +1,3 @@
-package org.emeraldcraft.djitello4j;
-
 import org.emeraldcraft.djitello4j.Tello.TelloClient;
 import org.emeraldcraft.djitello4j.Tello.TelloClient.FlipDirection;
 
