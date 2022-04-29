@@ -1,33 +1,22 @@
-import org.emeraldcraft.djitello4j.Tello.TelloClient;
-import org.emeraldcraft.djitello4j.Tello.TelloClient.FlipDirection;
+import org.emeraldcraft.djitello4j.Tello;
 
 import java.util.Scanner;
 
-public class Main {
+public class TelloExample {
     public static void main(String[] args) {
-        TelloClient drone = new TelloClient();
+        Tello tello = Tello.createDrone();
         Scanner scanner = new Scanner(System.in);
-        boolean isConnected = drone.connect();
-
-        if(!isConnected){
-            drone.disconnect();
-            return;
+        tello.connect();
+        System.out.println("battery is " + tello.getBattery());
+        if(scanner.nextLine().equalsIgnoreCase("y")) {
+            tello.takeoff();
+            tello.setSpeed(40);
+            tello.flipForward();
+            tello.flipBackward();
+            tello.backward(50);
+            tello.land();
         }
-        //ask user if they want to fly
-        System.out.println("Do you want to fly? (y/n)");
-        String answer = scanner.nextLine();
-        if (answer.equals("y")) {
-            drone.setSpeed(60);
-            drone.takeoff();
-            drone.moveForward(100);
-            drone.flip(FlipDirection.FORWARD);
-            drone.flip(FlipDirection.BACKWARD);
-
-            drone.land();
-        }
-        if (answer.equals("n")) {
-            System.out.println("Goodbye!");
-        }
-        drone.disconnect();
+        System.out.println("goodbye");
+        tello.disconnect();
     }
 }
