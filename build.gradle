@@ -2,7 +2,7 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'org.bytedeco.gradle-javacpp-platform' version '1.5.7git
+    id 'org.bytedeco.gradle-javacpp-platform' version '1.5.7'
 }
 apply plugin: 'maven-publish'
 def ver = '1.1.0'
