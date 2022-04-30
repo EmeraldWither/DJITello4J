@@ -1,11 +1,13 @@
 package org.emeraldcraft.djitello4j;
 
-import org.emeraldcraft.djitello4j.components.TelloResponse;
+import org.emeraldcraft.djitello4j.background.TelloCameraStream;
+import org.emeraldcraft.djitello4j.background.TelloStateReceiver;
 import org.emeraldcraft.djitello4j.components.TelloCommand;
+import org.emeraldcraft.djitello4j.components.TelloResponse;
 import org.emeraldcraft.djitello4j.net.TelloPacketManager;
 import org.emeraldcraft.djitello4j.net.TelloSDKSocket;
-import org.emeraldcraft.djitello4j.background.TelloStateReceiver;
 import org.emeraldcraft.djitello4j.utils.Logger;
+import org.opencv.core.Mat;
 
 import static org.emeraldcraft.djitello4j.utils.Constants.DEFAULT_TIMEOUT;
 
@@ -14,6 +16,9 @@ public class Tello {
     private boolean enabled = false;
     private final TelloPacketManager packetManager;
     private final TelloStateReceiver stateReceiver;
+    private boolean streamOn = false;
+
+    private TelloCameraStream cameraStream;
 
     private Tello() {
         this.socket = new TelloSDKSocket();
@@ -22,7 +27,6 @@ public class Tello {
         }
         packetManager = new TelloPacketManager(this);
         stateReceiver = new TelloStateReceiver();
-
     }
 
     public static Tello createDrone() {
@@ -155,6 +159,32 @@ public class Tello {
         if (speed < 10 || speed > 100) throw new IllegalArgumentException("Speed must be between 10 and 100");
         packetManager.sendPacket(new TelloCommand("speed " + speed, "ok", DEFAULT_TIMEOUT));
     }
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isStreamOn() {
+        return streamOn;
+    }
+    public void streamon(){
+        TelloResponse response = packetManager.sendPacket(new TelloCommand("streamon", "ok", DEFAULT_TIMEOUT));
+        if(response.wasSuccessful()){
+            streamOn = true;
+            cameraStream = new TelloCameraStream(this);
+            cameraStream.start();
+        }
+    }
+    public void streamoff(){
+        TelloResponse response = packetManager.sendPacket(new TelloCommand("streamoff", "ok", DEFAULT_TIMEOUT));
+        if(response.wasSuccessful()){
+            streamOn = false;
+            cameraStream.stopFetchingFrames();
+            cameraStream = null;
+        }
+    }
+    public Mat getFrame(){
+        return cameraStream.getFrame();
+    }
     /**
      * Disconnects the drone
      */
@@ -162,7 +192,7 @@ public class Tello {
         if (!enabled) return;
         socket.close();
         stateReceiver.stopRunning();
-
+        if(cameraStream != null) cameraStream.stopFetchingFrames();
         Logger.info("Tello socket closed.");
     }
 
@@ -173,8 +203,5 @@ public class Tello {
      */
     public TelloResponse sendCustomCommand(TelloCommand command){
         return packetManager.sendPacket(command);
-    }
-    public boolean isEnabled() {
-        return enabled;
     }
 }

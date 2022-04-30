@@ -1,6 +1,8 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.bytedeco.gradle-javacpp-platform' version '1.5.7git
 }
 apply plugin: 'maven-publish'
 def ver = '1.1.0'
@@ -11,6 +13,9 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
+shadowJar {
+    archiveFileName = 'DJITello4J.jar'
 }
 task javadocJar(type: Jar) {
     classifier  'javadoc'
@@ -27,7 +32,7 @@ publishing {
     publications {
         djitello4j(MavenPublication) {
             groupId = 'org.emeraldcraft'
-            artifactId = 'djitello4j_normal'
+            artifactId = 'djitello4j'
             version = ver
             from components.java
             artifacts {
@@ -38,4 +43,6 @@ publishing {
 }
 dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
+    implementation "org.bytedeco:javacv-platform:1.5.7"
+
 }
