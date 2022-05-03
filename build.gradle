@@ -27,7 +27,7 @@ publishing {
     publications {
         djitello4j(MavenPublication) {
             groupId = 'org.emeraldcraft'
-            artifactId = 'djitello4j_normal'
+            artifactId = 'djitello4j'
             version = ver
             from components.java
             artifacts {
