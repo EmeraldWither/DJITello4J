@@ -32,7 +32,7 @@ publishing {
     publications {
         djitello4j(MavenPublication) {
             groupId = 'org.emeraldcraft'
-            artifactId = 'djitello4j'
+            artifactId = 'djitello4j_opencv'
             version = ver
             from components.java
             artifacts {
@@ -44,5 +44,4 @@ publishing {
 dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
     implementation "org.bytedeco:javacv-platform:1.5.7"
-
 }
