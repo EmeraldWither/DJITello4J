@@ -8,7 +8,7 @@ import org.emeraldcraft.djitello4j.background.TelloStateReceiver;
 import org.emeraldcraft.djitello4j.utils.Logger;
 
 import static org.emeraldcraft.djitello4j.utils.Constants.DEFAULT_TIMEOUT;
-
+@SuppressWarnings("unused")
 public class Tello {
     private final TelloSDKSocket socket;
     private boolean enabled = false;
@@ -154,6 +154,70 @@ public class Tello {
     public void setSpeed(int speed){
         if (speed < 10 || speed > 100) throw new IllegalArgumentException("Speed must be between 10 and 100");
         packetManager.sendPacket(new TelloCommand("speed " + speed, "ok", DEFAULT_TIMEOUT));
+    }
+
+    /**
+     * Rotate the tello clockwise
+     * @param degrees Degrees between 0 and 3600
+     */
+    public void cw(int degrees){
+        if (degrees < 1 || degrees > 3600) throw new IllegalArgumentException("Degrees must be between 1 and 3600");
+        packetManager.sendPacket(new TelloCommand("cw " + degrees, "ok", DEFAULT_TIMEOUT));
+    }
+
+    /**
+     * Rotate the tello counterclockwise
+     * @param degrees Degrees between 0 and 3600
+     */
+    public void ccw(int degrees){
+        if (degrees < 1 || degrees > 3600) throw new IllegalArgumentException("Degrees must be between 1 and 3600");
+        packetManager.sendPacket(new TelloCommand("ccw " + degrees, "ok", DEFAULT_TIMEOUT));
+    }
+
+    /**
+     * Tello fly to x y z in speed (cm/s)
+     *
+     * @param x X position between 20 and 500
+     * @param y Y position between 20 and 500
+     * @param z Z position between 20 and 500
+     * @param speed Speed between 10 and 60
+     */
+    public void goXYZSpeed(int x, int y, int z, int speed){
+        if (x < 20 || x > 500) throw new IllegalArgumentException("X must be between 20 and 500");
+        if (y < 20 || y > 500) throw new IllegalArgumentException("Y must be between 20 and 500");
+        if (z < 20 || z > 500) throw new IllegalArgumentException("Z must be between 20 and 500");
+        if (speed < 10 || speed > 60) throw new IllegalArgumentException("Speed must be between 10 and 60");
+        packetManager.sendPacket(new TelloCommand("go " + x + " " + y + " " + z + " " + speed, "ok", DEFAULT_TIMEOUT));
+    }
+
+    /**
+     * Tello fly a curve defined by the
+     * current and two given coordinates
+     * with speed (cm/s)
+     * If the arc radius is not within
+     * the range of 0.5-10 meters, it
+     * will cause an error
+     *
+     * @param x1 X position between 20 and 500
+     * @param y1 Y position between 20 and 500
+     * @param z1 Z position between 20 and 500
+     * @param x2 X position between 20 and 500
+     * @param y2 Y position between 20 and 500
+     * @param z2 Z position between 20 and 500
+     * @param speed Speed between 10 and 60
+     */
+    public void curve(int x1, int y1, int z1, int x2, int y2, int z2, int speed){
+        if (x1 < 20 || x1 > 500) throw new IllegalArgumentException("X must be between 20 and 500");
+        if (y1 < 20 || y1 > 500) throw new IllegalArgumentException("Y must be between 20 and 500");
+        if (z1 < 20 || z1 > 500) throw new IllegalArgumentException("Z must be between 20 and 500");
+        if (x2 < 20 || x2 > 500) throw new IllegalArgumentException("X must be between 20 and 500");
+        if (y2 < 20 || y2 > 500) throw new IllegalArgumentException("Y must be between 20 and 500");
+        if (z2 < 20 || z2 > 500) throw new IllegalArgumentException("Z must be between 20 and 500");
+        if (speed < 10 || speed > 60) throw new IllegalArgumentException("Speed must be between 10 and 60");
+        packetManager.sendPacket(new TelloCommand("curve " + x1 + " " + y1 + " " + z1 + " " + x2 + " " + y2 + " " + z2 + " " + speed, "ok", DEFAULT_TIMEOUT));
+    }
+    public void rc(int lr, int fb, int ud, int yaw){
+        packetManager.sendPacket(new TelloCommand("rc " + lr + " " + fb + " " + ud + " " + yaw, "ok", DEFAULT_TIMEOUT));
     }
     /**
      * Disconnects the drone
