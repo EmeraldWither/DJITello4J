@@ -30,7 +30,6 @@ public class TelloPacketManager {
     public TelloResponse sendPacket(TelloCommand command){
         if (!telloSDKSocket.isOpen()) return null;
         if(!tello.isEnabled()) return null;
-
         try{
             socket.setSoTimeout(command.timeout());
             int attempts = 0;
@@ -44,11 +43,11 @@ public class TelloPacketManager {
                     socket.send(command.getDatagramPacket());
                     this.lastPacketSent = System.currentTimeMillis();
 
+                    if (command.response() == null) return new TelloResponse(command, true, null);
                     socket.receive(packet);
                     String received = new String(
                             packet.getData(), 0, packet.getLength());
 
-                    if (command.command() == null) return new TelloResponse(command, true, null);
 
                     if (command.response().equalsIgnoreCase(received)) {
                         Logger.debug("Got successful (expected) response: \"" + received + "\" for command: \"" + command + "\"");
@@ -57,6 +56,9 @@ public class TelloPacketManager {
                     Logger.error("Got unsuccessful packet: \"" + received + "\" for command \"" + command + "\"");
                     attempts++;
                 } catch (SocketTimeoutException e) {
+                    if(command.timeout() == 0){
+                        Logger.debug("Socket timeout exception, but command has no timeout. Command: " + command);
+                    }
                     Logger.error("Socket connection timed out " + command + " || attempt: " + attempts + ", retrying...");
                     attempts++;
                 }

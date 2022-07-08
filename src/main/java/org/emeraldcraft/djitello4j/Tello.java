@@ -1,5 +1,7 @@
 package org.emeraldcraft.djitello4j;
 
+import org.bytedeco.javacpp.Loader;
+import org.bytedeco.opencv.opencv_java;
 import org.emeraldcraft.djitello4j.background.TelloCameraStream;
 import org.emeraldcraft.djitello4j.background.TelloStateReceiver;
 import org.emeraldcraft.djitello4j.components.TelloCommand;
@@ -27,6 +29,7 @@ public class Tello {
         }
         packetManager = new TelloPacketManager(this);
         stateReceiver = new TelloStateReceiver();
+        Loader.load(opencv_java.class);
     }
 
     public static Tello createDrone() {
@@ -62,7 +65,6 @@ public class Tello {
      * Initiates auto landing
      */
     public void land() {
-
         packetManager.sendPacket(new TelloCommand("land", "ok", DEFAULT_TIMEOUT));
     }
 
@@ -236,6 +238,7 @@ public class Tello {
      * @param speed Speed between 10 and 60
      */
     public void curve(int x1, int y1, int z1, int x2, int y2, int z2, int speed){
+        //we dont talk about it
         if (x1 < 20 || x1 > 500) throw new IllegalArgumentException("X must be between 20 and 500");
         if (y1 < 20 || y1 > 500) throw new IllegalArgumentException("Y must be between 20 and 500");
         if (z1 < 20 || z1 > 500) throw new IllegalArgumentException("Z must be between 20 and 500");
@@ -246,7 +249,7 @@ public class Tello {
         packetManager.sendPacket(new TelloCommand("curve " + x1 + " " + y1 + " " + z1 + " " + x2 + " " + y2 + " " + z2 + " " + speed, "ok", DEFAULT_TIMEOUT));
     }
     public void rc(int lr, int fb, int ud, int yaw){
-        packetManager.sendPacket(new TelloCommand("rc " + lr + " " + fb + " " + ud + " " + yaw, "ok", DEFAULT_TIMEOUT));
+        packetManager.sendPacket(new TelloCommand("rc " + lr + " " + fb + " " + ud + " " + yaw, null, 0));
     }
     /**
      * Disconnects the drone
