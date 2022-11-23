@@ -1,11 +1,12 @@
 package org.emeraldcraft.djitello4j;
 
-import org.emeraldcraft.djitello4j.components.TelloResponse;
 import org.emeraldcraft.djitello4j.components.TelloCommand;
+import org.emeraldcraft.djitello4j.components.TelloCommand.Response;
 import org.emeraldcraft.djitello4j.net.TelloPacketManager;
 import org.emeraldcraft.djitello4j.net.TelloSDKSocket;
 import org.emeraldcraft.djitello4j.background.TelloStateReceiver;
 import org.emeraldcraft.djitello4j.utils.Logger;
+import org.jetbrains.annotations.Range;
 
 import static org.emeraldcraft.djitello4j.utils.Constants.DEFAULT_TIMEOUT;
 @SuppressWarnings("unused")
@@ -17,7 +18,7 @@ public class Tello {
 
     private Tello() {
         this.socket = new TelloSDKSocket();
-        if (!socket.isOpen()) {
+        if (socket.isClosed()) {
             Logger.error("Could not initialize Tello class");
         }
         packetManager = new TelloPacketManager(this);
@@ -43,7 +44,7 @@ public class Tello {
         }
         stateReceiver.receiveAndParsePackets();
         enabled = true;
-        TelloResponse response = packetManager.sendPacket(new TelloCommand("command", "ok", 5000));
+        Response response = packetManager.sendPacket(new TelloCommand("command", "ok", 5000));
         enabled = response.wasSuccessful();
     }
 
@@ -58,7 +59,6 @@ public class Tello {
      * Initiates auto landing
      */
     public void land() {
-
         packetManager.sendPacket(new TelloCommand("land", "ok", DEFAULT_TIMEOUT));
     }
 
@@ -66,8 +66,7 @@ public class Tello {
      * Moves the drone forward. Must be between 20 and 500
      * @param distance Distance in centimeters
      */
-    public void forward(int distance) {
-        if (distance < 20 || distance > 500) throw new IllegalArgumentException("Distance must be between 20 and 500");
+    public void forward(@Range(from = 20, to = 500) int distance) {
         packetManager.sendPacket(new TelloCommand("forward " + distance, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -75,8 +74,7 @@ public class Tello {
      * Moves the drone backward. Must be between 20 and 500
      * @param distance Distance in centimeters
      */
-    public void backward(int distance) {
-        if (distance < 20 || distance > 500) throw new IllegalArgumentException("Distance must be between 20 and 500");
+    public void backward(@Range(from = 20, to = 500) int distance) {
         packetManager.sendPacket(new TelloCommand("back " + distance, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -84,8 +82,7 @@ public class Tello {
      * Moves the drone left. Must be between 20 and 500
      * @param distance Distance in centimeters
      */
-    public void left(int distance) {
-        if (distance < 20 || distance > 500) throw new IllegalArgumentException("Distance must be between 20 and 500");
+    public void left(@Range(from = 20, to = 500) int distance) {
         packetManager.sendPacket(new TelloCommand("left " + distance, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -93,8 +90,7 @@ public class Tello {
      * Moves the drone right. Must be between 20 and 500
      * @param distance Distance in centimeters
      */
-    public void right(int distance) {
-        if (distance < 20 || distance > 500) throw new IllegalArgumentException("Distance must be between 20 and 500");
+    public void right(@Range(from = 20, to = 500) int distance) {
         packetManager.sendPacket(new TelloCommand("right " + distance, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -102,8 +98,7 @@ public class Tello {
      * Moves the drone up. Must be between 20 and 500
      * @param distance Distance in centimeters
      */
-    public void up(int distance) {
-        if (distance < 20 || distance > 500) throw new IllegalArgumentException("Distance must be between 20 and 500");
+    public void up(@Range(from = 20, to = 500) int distance) {
         packetManager.sendPacket(new TelloCommand("up " + distance, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -111,8 +106,7 @@ public class Tello {
      * Moves the drone down. Must be between 20 and 500
      * @param distance Distance in centimeters
      */
-    public void down(int distance) {
-        if (distance < 20 || distance > 500) throw new IllegalArgumentException("Distance must be between 20 and 500");
+    public void down(@Range(from = 20, to = 500) int distance) {
         packetManager.sendPacket(new TelloCommand("down " + distance, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -151,8 +145,7 @@ public class Tello {
      * Sets the speed of the drone.
      * @param speed Speed between 0 and 100
      */
-    public void setSpeed(int speed){
-        if (speed < 10 || speed > 100) throw new IllegalArgumentException("Speed must be between 10 and 100");
+    public void setSpeed(@Range(from = 10, to = 100) int speed){
         packetManager.sendPacket(new TelloCommand("speed " + speed, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -160,8 +153,7 @@ public class Tello {
      * Rotate the tello clockwise
      * @param degrees Degrees between 0 and 3600
      */
-    public void cw(int degrees){
-        if (degrees < 1 || degrees > 3600) throw new IllegalArgumentException("Degrees must be between 1 and 3600");
+    public void cw(@Range(from = 1, to = 3600) int degrees){
         packetManager.sendPacket(new TelloCommand("cw " + degrees, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -169,8 +161,7 @@ public class Tello {
      * Rotate the tello counterclockwise
      * @param degrees Degrees between 0 and 3600
      */
-    public void ccw(int degrees){
-        if (degrees < 1 || degrees > 3600) throw new IllegalArgumentException("Degrees must be between 1 and 3600");
+    public void ccw(@Range(from = 1, to = 3600)int degrees){
         packetManager.sendPacket(new TelloCommand("ccw " + degrees, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -182,11 +173,7 @@ public class Tello {
      * @param z Z position between 20 and 500
      * @param speed Speed between 10 and 60
      */
-    public void goXYZSpeed(int x, int y, int z, int speed){
-        if (x < 20 || x > 500) throw new IllegalArgumentException("X must be between 20 and 500");
-        if (y < 20 || y > 500) throw new IllegalArgumentException("Y must be between 20 and 500");
-        if (z < 20 || z > 500) throw new IllegalArgumentException("Z must be between 20 and 500");
-        if (speed < 10 || speed > 60) throw new IllegalArgumentException("Speed must be between 10 and 60");
+    public void goXYZSpeed(@Range(from = 20, to = 500)int x, @Range(from = 20, to = 500) int y, @Range(from = 20, to = 500)int z, @Range(from = 10, to = 60)int speed){
         packetManager.sendPacket(new TelloCommand("go " + x + " " + y + " " + z + " " + speed, "ok", DEFAULT_TIMEOUT));
     }
 
@@ -206,14 +193,7 @@ public class Tello {
      * @param z2 Z position between 20 and 500
      * @param speed Speed between 10 and 60
      */
-    public void curve(int x1, int y1, int z1, int x2, int y2, int z2, int speed){
-        if (x1 < 20 || x1 > 500) throw new IllegalArgumentException("X must be between 20 and 500");
-        if (y1 < 20 || y1 > 500) throw new IllegalArgumentException("Y must be between 20 and 500");
-        if (z1 < 20 || z1 > 500) throw new IllegalArgumentException("Z must be between 20 and 500");
-        if (x2 < 20 || x2 > 500) throw new IllegalArgumentException("X must be between 20 and 500");
-        if (y2 < 20 || y2 > 500) throw new IllegalArgumentException("Y must be between 20 and 500");
-        if (z2 < 20 || z2 > 500) throw new IllegalArgumentException("Z must be between 20 and 500");
-        if (speed < 10 || speed > 60) throw new IllegalArgumentException("Speed must be between 10 and 60");
+    public void curve(@Range(from = 20, to = 500)int x1, @Range(from = 20, to = 500)int y1, @Range(from = 20, to = 500)int z1, @Range(from = 20, to = 500)int x2, @Range(from = 20, to = 500)int y2, @Range(from = 20, to = 500)int z2, @Range(from = 10, to = 60)int speed){
         packetManager.sendPacket(new TelloCommand("curve " + x1 + " " + y1 + " " + z1 + " " + x2 + " " + y2 + " " + z2 + " " + speed, "ok", DEFAULT_TIMEOUT));
     }
     public void rc(int lr, int fb, int ud, int yaw){
@@ -235,7 +215,7 @@ public class Tello {
      * @param command The command that you want to send
      * @return The response from the drone. May be null if the drone is not connected or enabled.
      */
-    public TelloResponse sendCustomCommand(TelloCommand command){
+    public Response sendCustomCommand(TelloCommand command){
         return packetManager.sendPacket(command);
     }
     public boolean isEnabled() {

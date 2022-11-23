@@ -11,7 +11,7 @@ import static org.emeraldcraft.djitello4j.utils.Constants.SDK_HOST;
 import static org.emeraldcraft.djitello4j.utils.Constants.SDK_PORT;
 
 public class TelloSDKSocket {
-    private boolean isOpen = false;
+    private boolean isOpen;
     private DatagramSocket SDKSocket;
     private InetAddress address;
 
@@ -27,8 +27,8 @@ public class TelloSDKSocket {
         }
     }
 
-    public boolean isOpen() {
-        return isOpen;
+    public boolean isClosed() {
+        return !isOpen;
     }
 
     public DatagramSocket getSDKSocket() {

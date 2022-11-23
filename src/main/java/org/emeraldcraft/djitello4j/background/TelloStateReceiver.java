@@ -9,7 +9,6 @@ import java.net.*;
  * This class is used to receive the state of the Tello drone via the UDP socket.
  * This information is passed to provide information about the battery, tof, temperature, and height.
  * This runs in the background on a separate thread, and the information is sent from the Tello drone automatically.
- *
  * This is an internal class, and should not be used directly.
  */
 public class TelloStateReceiver extends Thread {
