@@ -2,7 +2,7 @@ package org.emeraldcraft.djitello4j.net;
 
 import org.emeraldcraft.djitello4j.Tello;
 import org.emeraldcraft.djitello4j.components.TelloCommand;
-import org.emeraldcraft.djitello4j.components.TelloResponse;
+import org.emeraldcraft.djitello4j.components.TelloCommand.Response;
 import org.emeraldcraft.djitello4j.utils.Logger;
 
 import java.io.IOException;
@@ -11,9 +11,9 @@ import java.net.DatagramSocket;
 import java.net.SocketTimeoutException;
 
 public class TelloPacketManager {
-    private Tello tello;
-    private DatagramSocket socket;
-    private TelloSDKSocket telloSDKSocket;
+    private final Tello tello;
+    private final DatagramSocket socket;
+    private final TelloSDKSocket telloSDKSocket;
 
     private long lastPacketSent = 0;
     public TelloPacketManager(Tello tello) {
@@ -27,8 +27,8 @@ public class TelloPacketManager {
      * Sends a TelloPacket to the drone, and awaits a response.
      * @return The response packet, or null if no response was received or expected.
      */
-    public TelloResponse sendPacket(TelloCommand command){
-        if (!telloSDKSocket.isOpen()) return null;
+    public Response sendPacket(TelloCommand command){
+        if (telloSDKSocket.isClosed()) return null;
         if(!tello.isEnabled()) return null;
         try{
             socket.setSoTimeout(command.timeout());
@@ -43,7 +43,7 @@ public class TelloPacketManager {
                     socket.send(command.getDatagramPacket());
                     this.lastPacketSent = System.currentTimeMillis();
 
-                    if (command.response() == null) return new TelloResponse(command, true, null);
+                    if (command.response() == null) return new Response(command, true, null);
                     socket.receive(packet);
                     String received = new String(
                             packet.getData(), 0, packet.getLength());
@@ -51,7 +51,7 @@ public class TelloPacketManager {
 
                     if (command.response().equalsIgnoreCase(received)) {
                         Logger.debug("Got successful (expected) response: \"" + received + "\" for command: \"" + command + "\"");
-                        return new TelloResponse(command, true, null);
+                        return new Response(command, true, null);
                     }
                     Logger.error("Got unsuccessful packet: \"" + received + "\" for command \"" + command + "\"");
                     attempts++;
@@ -67,9 +67,9 @@ public class TelloPacketManager {
         }
         catch (IOException e){
             Logger.error("IOException while sending packet: \"" + command + "\" | GIVING UP!!!");
-            return new TelloResponse(command, false, e);
+            return new Response(command, false, e);
         }
-        return new TelloResponse(command, false, null);
+        return new Response(command, false, null);
     }
 
 

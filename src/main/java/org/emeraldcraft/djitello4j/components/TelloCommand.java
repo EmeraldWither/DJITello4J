@@ -36,4 +36,6 @@ public record TelloCommand(String command, String response, int timeout){
                 ", timeout=" + timeout +
                 '}';
     }
+
+    public record Response(TelloCommand command, boolean wasSuccessful, Exception exception) {}
 }

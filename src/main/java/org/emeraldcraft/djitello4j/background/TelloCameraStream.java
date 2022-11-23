@@ -10,7 +10,7 @@ public class TelloCameraStream extends Thread {
 
     private org.opencv.core.Mat frame = new org.opencv.core.Mat();
     private final Tello drone;
-    ToOrgOpenCvCoreMat converter = new ToOrgOpenCvCoreMat();
+    final ToOrgOpenCvCoreMat converter = new ToOrgOpenCvCoreMat();
     private FFmpegFrameGrabber frameGrabber;
 
     public TelloCameraStream(Tello drone){

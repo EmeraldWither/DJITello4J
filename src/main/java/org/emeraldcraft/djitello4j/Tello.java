@@ -6,7 +6,7 @@ import org.emeraldcraft.djitello4j.background.TelloCameraStream;
 import org.emeraldcraft.djitello4j.background.TelloKeepAliveHandler;
 import org.emeraldcraft.djitello4j.background.TelloStateReceiver;
 import org.emeraldcraft.djitello4j.components.TelloCommand;
-import org.emeraldcraft.djitello4j.components.TelloResponse;
+import org.emeraldcraft.djitello4j.components.TelloCommand.Response;
 import org.emeraldcraft.djitello4j.net.TelloPacketManager;
 import org.emeraldcraft.djitello4j.net.TelloSDKSocket;
 import org.emeraldcraft.djitello4j.utils.Logger;
@@ -28,7 +28,7 @@ public class Tello {
 
     private Tello() {
         this.socket = new TelloSDKSocket();
-        if (!socket.isOpen()) {
+        if (socket.isClosed()) {
             Logger.error("Could not initialize Tello class");
         }
         packetManager = new TelloPacketManager(this);
@@ -56,7 +56,7 @@ public class Tello {
         stateReceiver.receiveAndParsePackets();
         keepAliveHandle.start();
         enabled = true;
-        TelloResponse response = packetManager.sendPacket(new TelloCommand("command", "ok", 5000));
+        Response response = packetManager.sendPacket(new TelloCommand("command", "ok", 5000));
         enabled = response.wasSuccessful();
     }
 
@@ -179,7 +179,7 @@ public class Tello {
     }
 
     public void streamon() {
-        TelloResponse response = packetManager.sendPacket(new TelloCommand("streamon", "ok", DEFAULT_TIMEOUT));
+        Response response = packetManager.sendPacket(new TelloCommand("streamon", "ok", DEFAULT_TIMEOUT));
         if (response.wasSuccessful()) {
             streamOn = true;
             cameraStream = new TelloCameraStream(this);
@@ -188,7 +188,7 @@ public class Tello {
     }
 
     public void streamoff() {
-        TelloResponse response = packetManager.sendPacket(new TelloCommand("streamoff", "ok", DEFAULT_TIMEOUT));
+        Response response = packetManager.sendPacket(new TelloCommand("streamoff", "ok", DEFAULT_TIMEOUT));
         if (response.wasSuccessful()) {
             streamOn = false;
             cameraStream.stopFetchingFrames();
@@ -272,7 +272,8 @@ public class Tello {
      * @param command The command that you want to send
      * @return The response from the drone. May be null if the drone is not connected or enabled.
      */
-    public TelloResponse sendCustomCommand(TelloCommand command) {
+    @SuppressWarnings("UnusedReturnValue")
+    public Response sendCustomCommand(TelloCommand command) {
         return packetManager.sendPacket(command);
     }
 }

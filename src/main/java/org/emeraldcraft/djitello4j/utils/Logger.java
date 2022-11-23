@@ -9,28 +9,16 @@ public class Logger {
     private static final boolean IS_DEBUGGING = true;
 
     public static void info(String msg){
-        Date date = new Date();
-        DateFormat formatter;
-        formatter = new SimpleDateFormat("h:mm:ss a");
-
-        formatter.setTimeZone(TimeZone.getDefault());
-        String currentTime;
-        currentTime = formatter.format(date);
-        System.out.println("[INFO " + currentTime + "]: " + msg);
+        System.out.println("[INFO " + getCurrentTime() + "]: " + msg);
     }
     public static void debug(String msg){
         if(!IS_DEBUGGING) return;
-
-        Date date = new Date();
-        DateFormat formatter;
-        formatter = new SimpleDateFormat("h:mm:ss a");
-
-        formatter.setTimeZone(TimeZone.getDefault());
-        String currentTime;
-        currentTime = formatter.format(date);
-        System.out.println("[DEBUG " + currentTime + "]: " + msg);
+        System.out.println("[DEBUG " + getCurrentTime() + "]: " + msg);
     }
     public static void error(String msg){
+        System.out.println("<!><!> [ERROR " + getCurrentTime() + "]: " + msg +  " <!><!>");
+    }
+    private static String getCurrentTime(){
         Date date = new Date();
         DateFormat formatter;
         formatter = new SimpleDateFormat("h:mm:ss a");
@@ -38,6 +26,6 @@ public class Logger {
         formatter.setTimeZone(TimeZone.getDefault());
         String currentTime;
         currentTime = formatter.format(date);
-        System.out.println("<!><!> [ERROR " + currentTime + "]: " + msg +  " <!><!>");
+        return currentTime;
     }
 }
