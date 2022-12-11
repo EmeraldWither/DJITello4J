@@ -1,5 +1,6 @@
 package org.emeraldcraft.djitello4j;
 
+import org.emeraldcraft.djitello4j.background.TelloKeepAliveHandler;
 import org.emeraldcraft.djitello4j.components.TelloCommand;
 import org.emeraldcraft.djitello4j.components.TelloCommand.Response;
 import org.emeraldcraft.djitello4j.net.TelloPacketManager;
@@ -15,6 +16,7 @@ public class Tello {
     private boolean enabled = false;
     private final TelloPacketManager packetManager;
     private final TelloStateReceiver stateReceiver;
+    private final TelloKeepAliveHandler keepAliveHandler;
 
     private Tello() {
         this.socket = new TelloSDKSocket();
@@ -23,6 +25,7 @@ public class Tello {
         }
         packetManager = new TelloPacketManager(this);
         stateReceiver = new TelloStateReceiver();
+        keepAliveHandler = new TelloKeepAliveHandler(this);
 
     }
 
@@ -46,6 +49,7 @@ public class Tello {
         enabled = true;
         Response response = packetManager.sendPacket(new TelloCommand("command", "ok", 5000));
         enabled = response.wasSuccessful();
+        keepAliveHandler.start();
     }
 
     /**
@@ -206,6 +210,7 @@ public class Tello {
         if (!enabled) return;
         socket.close();
         stateReceiver.stopRunning();
+        keepAliveHandler.stop();
 
         Logger.info("Tello socket closed.");
     }

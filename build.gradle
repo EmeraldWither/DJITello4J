@@ -3,7 +3,7 @@ plugins {
     id 'java'
 }
 apply plugin: 'maven-publish'
-def ver = '1.1.0'
+def ver = '1.1.1'
 println 'You are using version: ' + ver
 
 repositories {
