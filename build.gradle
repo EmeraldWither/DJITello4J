@@ -1,10 +1,10 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
-    id 'java'
+    id 'java-library'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'org.bytedeco.gradle-javacpp-platform' version '1.5.7'
+    id 'maven-publish'
 }
-apply plugin: 'maven-publish'
 def ver = '1.2'
 println 'You are using Tello4J OPENCV version: ' + ver
 
@@ -15,15 +15,7 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 shadowJar {
-    archiveFileName = 'DJITello4J_OpenCV.jar'
-}
-task javadocJar(type: Jar) {
-    classifier  'javadoc'
-    from javadoc
-}
-
-artifacts {
-    archives javadocJar
+    archiveFileName = "DJITello4J_OpenCV FULL v${ver}.jar"
 }
 
 //For publishing to your local maven repo
@@ -31,17 +23,14 @@ artifacts {
 publishing {
     publications {
         djitello4j(MavenPublication) {
+            from components.java
             groupId = 'org.emeraldcraft'
             artifactId = 'djitello4j_opencv'
             version = ver
-            from components.java
-            artifacts {
-                artifact(javadocJar)
-            }
         }
     }
 }
 dependencies {
-    implementation 'org.jetbrains:annotations:23.0.0'
-    implementation "org.bytedeco:javacv-platform:1.5.7"
+    api 'org.jetbrains:annotations:23.0.0'
+    api "org.bytedeco:javacv-platform:1.5.7"
 }
