@@ -16,8 +16,12 @@ public class TelloKeepAliveHandler {
     }
 
     public void start() {
+        if(!drone.isEnabled()) {
+            stop();
+            return;
+        }
         executor.scheduleAtFixedRate(
-                () -> drone.sendCustomCommand(new TelloCommand("keepalive", "ok", 5000)),
+                () -> drone.sendCustomCommand(new TelloCommand("alive", "ok", 5000)),
                 0, 15, TimeUnit.SECONDS);
     }
     public void stop() {
