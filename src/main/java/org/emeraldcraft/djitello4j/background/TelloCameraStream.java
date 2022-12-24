@@ -5,7 +5,7 @@ import org.bytedeco.javacv.OpenCVFrameConverter.ToOrgOpenCvCoreMat;
 import org.emeraldcraft.djitello4j.Tello;
 import org.emeraldcraft.djitello4j.utils.Logger;
 
-public class TelloCameraStream extends Thread {
+public class TelloCameraStream  {
     private boolean isRunning = false;
 
     private final Tello drone;
@@ -32,11 +32,6 @@ public class TelloCameraStream extends Thread {
         Logger.info("Tello camera stream started");
         isRunning = true;
     }
-
-    public void run() {
-
-    }
-
     /**
      * @return Returns the decoded frame as a string
      */

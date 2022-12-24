@@ -183,7 +183,6 @@ public class Tello {
         if (response.wasSuccessful()) {
             streamOn = true;
             cameraStream = new TelloCameraStream(this);
-            cameraStream.start();
             getFrame();
 
         }
