@@ -8,7 +8,6 @@ import org.emeraldcraft.djitello4j.utils.Logger;
 public class TelloCameraStream extends Thread {
     private boolean isRunning = false;
 
-    private org.opencv.core.Mat frame = new org.opencv.core.Mat();
     private final Tello drone;
     final ToOrgOpenCvCoreMat converter = new ToOrgOpenCvCoreMat();
     private FFmpegFrameGrabber frameGrabber;
@@ -35,28 +34,24 @@ public class TelloCameraStream extends Thread {
     }
 
     public void run() {
-        while (isRunning && drone.isStreamOn()) {
-            fetchFrame();
-        }
-    }
 
-    private void fetchFrame() {
-
-        try {
-            //Convert the frame to a Mat
-            frame = converter.convert(frameGrabber.grab());
-        } catch (FFmpegFrameGrabber.Exception e) {
-            Logger.error("Error fetching frame from grabber");
-            e.printStackTrace();
-        }
     }
 
     /**
      * @return Returns the decoded frame as a string
      */
     public org.opencv.core.Mat getFrame() {
-        if(frame.empty()) return null;
-        return frame;
+        if (!isRunning || !drone.isStreamOn()) {
+            return null;
+        }
+        try {
+            //Convert the frame to a Mat
+            return converter.convertToOrgOpenCvCoreMat(frameGrabber.grab());
+        } catch (FFmpegFrameGrabber.Exception e) {
+            Logger.error("Error fetching frame from grabber");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void stopFetchingFrames() {

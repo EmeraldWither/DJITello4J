@@ -184,6 +184,8 @@ public class Tello {
             streamOn = true;
             cameraStream = new TelloCameraStream(this);
             cameraStream.start();
+            getFrame();
+
         }
     }
 
