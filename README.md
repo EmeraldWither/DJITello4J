@@ -1,7 +1,7 @@
 # DJITello4J
 An easy to use library to programmatically control your DJI Tello in Java.
 
-*Only the normal DJI Tello, (non EDU edition) is supported. You can still access the EDU API using a custom command*
+*Only the normal DJI Tello, (non EDU edition) is supported. You can still access the EDU API using a custom command, but there is no support for Swarm control*
 
 ## Usage 
 Compile the gradle project and publish it to your local maven repository
