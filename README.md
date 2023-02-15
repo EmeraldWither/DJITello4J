@@ -23,5 +23,5 @@ Compile the gradle project and publish it to your local maven repository
  Example Code can be found under the `/examples/` folder.
 
 ## Camera Integration
-This project uses FFMpeg and OpenCV for allowing you to be able to access the camera stream of the Tello, but these dependencies are massive (~100mb). 
+This project uses FFmpeg and OpenCV for allowing you to be able to access the camera stream of the Tello, but these dependencies are massive (~100mb). 
 Please use the [opencv](https://github.com/EmeraldWither/DJITello4J/tree/opencv_camera) branch to be able to compile a version with camera support. 
