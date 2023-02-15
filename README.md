@@ -15,7 +15,7 @@ Compile the gradle project and publish it to your local maven repository
 	    mavenLocal()
     }
     dependencies {
-	    implementation 'org.emeraldcraft.djitello4j:version'
+	    implementation 'org.emeraldcraft:djitello4j:version'
     }
   
   > On Windows, when you connect to your Tello drone, you must mark its Wi-Fi network as a private network! 
