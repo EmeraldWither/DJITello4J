@@ -11,7 +11,7 @@ Compile the gradle project and publish it to your local maven repository
  Now include the project in your `build.gradle`
  
 
-    repository {
+    repositories {
 	    mavenLocal()
     }
     dependencies {
