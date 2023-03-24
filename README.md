@@ -13,7 +13,7 @@ Please keep in mind that due to the very large dependencies, this initial compil
  Now include the project in your `build.gradle`
  
 
-    repository {
+    repositories {
 	    mavenLocal()
     }
     dependencies {
